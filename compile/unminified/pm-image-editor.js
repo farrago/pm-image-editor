@@ -5,7 +5,7 @@
  * Copyright (c) 2016 Partnermarketing.com
  * License: MIT
  *
- * Generated at Thursday, February 11th, 2016, 12:58:09 PM
+ * Generated at Friday, April 22nd, 2016, 12:43:14 PM
  */
 (function() {
 'use strict';
@@ -1307,6 +1307,8 @@
                     $scope.updateHistoryButtons();
 
                     $scope.state = angular.copy($scope.editor.history.current());
+                    doCrop();
+
                     // For some reason without this $apply() parent variable, that linked to "state"
                     // is not updated.
                     // But $apply is triggering an issue during init stage. So moved this to setTimeout.
@@ -1356,6 +1358,27 @@
                 }
             };
 
+            //
+            // Crop the image according to the current selection.
+            // Sets the result into $scope.resultImage (i.e. result-image from the control)
+            var doCrop = function () {
+                var crop_canvas = angular.element('<canvas></canvas>')[0];
+                crop_canvas.width = $scope.resultWidth;
+                crop_canvas.height = $scope.resultHeight;
+                var context = crop_canvas.getContext('2d');
+                var left = $scope.editor.naturalWidth * ($scope.state.selection.left / $scope.state.width);
+                var top = $scope.editor.naturalHeight * ($scope.state.selection.top / $scope.state.height);
+                var width = $scope.editor.naturalWidth * ($scope.state.selection.width / $scope.state.width);
+                var height = $scope.editor.naturalHeight * ($scope.state.selection.height / $scope.state.height);
+                context.drawImage(
+                    $scope.imageElement[0],                         // Src image
+                    left, top, width, height,                       // Src coordinates
+                    0, 0, $scope.resultWidth, $scope.resultHeight   // Dest coordinates
+                    );
+                var image = crop_canvas.toDataURL("image/jpg");
+                $scope.resultImage = image;
+            }
+
             $scope.$watch('selectionWidth', handleSelectionDimensions);
             $scope.$watch('selectionHeight', handleSelectionDimensions);
         })
@@ -1367,7 +1390,10 @@
                     width: '@',
                     selectionWidth: '@',
                     selectionHeight: '@',
-                    state: '='
+                    state: '=',
+                    resultImage: '=',
+                    resultWidth: '@',
+                    resultHeight: '@'
                 },
                 controller: 'ImageEditorController',
                 template: '\
@@ -1378,8 +1404,8 @@
                             height="{{selectionHeight}}"\
                             editor-id="{{editorId}}"\
                         ></image-selection>\
-                    </div>\
-                    <editor-panel editor-id="{{editorId}}"></editor-panel>',
+                    </div>',
+                    //<editor-panel editor-id="{{editorId}}"></editor-panel>',
                 link: function (scope, element) {
                     // Remember image to use in controller.
                     scope.imageElement = element.find('img');
