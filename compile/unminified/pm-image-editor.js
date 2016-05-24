@@ -5,7 +5,7 @@
  * Copyright (c) 2016 Partnermarketing.com
  * License: MIT
  *
- * Generated at Friday, April 22nd, 2016, 12:43:14 PM
+ * Generated at Tuesday, May 24th, 2016, 4:18:20 PM
  */
 (function() {
 'use strict';
@@ -1307,12 +1307,12 @@
                     $scope.updateHistoryButtons();
 
                     $scope.state = angular.copy($scope.editor.history.current());
-                    doCrop();
 
                     // For some reason without this $apply() parent variable, that linked to "state"
                     // is not updated.
                     // But $apply is triggering an issue during init stage. So moved this to setTimeout.
                     setTimeout(function() {
+                        doCrop();
                         $scope.$apply();
                     }, 0);
                 }
